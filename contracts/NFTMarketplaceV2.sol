@@ -5,19 +5,8 @@ pragma solidity ^0.8.0;
  * - Others can buy listed NFTs (By paying in terms of ETHERS/MATIC)
  * - User can update the listed NFT's properties (Ex: price)
  * - User can de-list their NFTs from marketplace 
+ * NOTE: Only feature add in V2 is counting listings
  */
-
- // Function to list users nft should accpet erc721 and erc1155
-
- // Function update listed nft data by user only can update price 
-
- // Function de-list  listed nft
-
- // Function to get list of all listed nfts for sales with details
-
- //   
-
-
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -51,6 +40,8 @@ contract NFTMarketplaceV2 is ERC721Holder, ERC1155Holder, Initializable, Ownable
     mapping(address => mapping(uint256 => Listing)) public listings;
     // mapping shows the supporting smart contracts
     mapping(address => bool) public supportedNFTContracts;
+
+    uint256 public listingCount;
 
     event ListingCreated(address indexed nftContract, uint256 indexed tokenId, uint256 price, address indexed seller, uint8 tokenType, uint256 tokenAmount);
     event ListingRemoved(address indexed nftContract, uint256 indexed tokenId, uint8 indexed tokenType, uint256 tokenAmount);
@@ -99,6 +90,7 @@ contract NFTMarketplaceV2 is ERC721Holder, ERC1155Holder, Initializable, Ownable
             nft.safeTransferFrom(msg.sender, address(this), _tokenId, _tokenAmount, "");
         }
         listings[_nftContract][_tokenId] = Listing(msg.sender, _price, _tokenType, _tokenAmount, true, false);
+        listingCount++;
 
         emit ListingCreated(_nftContract, _tokenId, _price, msg.sender, _tokenType, _tokenAmount);
     }
@@ -120,6 +112,7 @@ contract NFTMarketplaceV2 is ERC721Holder, ERC1155Holder, Initializable, Ownable
         }
 
         delete listings[_nftContract][_tokenId];
+        listingCount--;
 
         emit ListingRemoved(_nftContract, _tokenId, listing.tokenType, listing.tokenAmount);
     }    
@@ -155,6 +148,7 @@ contract NFTMarketplaceV2 is ERC721Holder, ERC1155Holder, Initializable, Ownable
         listing.status = false;
 
         emit ListingSold(_nftContract, _tokenId, listing.price, msg.sender, listing.seller, listing.tokenType, listing.tokenAmount);
+        listingCount--;
 
         return true;
     }
