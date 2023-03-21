@@ -2,20 +2,20 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x56a246060767e2ac33a9fe8038a11793ea68f789ef084b9bbad151620b0fb4d5",
+      "address": "0x0A821f24Ef0570674bc9ff37F26f7142D9939467",
+      "txHash": "0x93f410c0751286b49329113efba90b57079da006bc58c1eb224b5c045598aa8b",
       "kind": "uups"
     },
     {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x1f88ba67011b090985d60251eedbc560cd52d2fe1dc7c57f0796bd315f32391c",
+      "address": "0xdaf3c4192a4bc92fC1D31a525716f603B2395f0e",
+      "txHash": "0x9ef23d69d4fdfa29518805c979272428be74fb3b936cc783b22953c617debb11",
       "kind": "uups"
     }
   ],
   "impls": {
     "019e37e31abf79802665797a7c539f338154cb4d6211d6b00043d06d6f0f0c57": {
-      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xd28ef572557a7add7b82dd4b635d7d00a99a03eff0d1ce256f3287636c43af8f",
+      "address": "0xf08279eF4e7952e0411ab466A8969ad1D23BF3eC",
+      "txHash": "0xf854a211af9d3d854c965fb5dc0b3bf3a61c3a233f3ef94a436307613c9c6c3b",
       "layout": {
         "solcVersion": "0.8.9",
         "storage": [
@@ -82,7 +82,7 @@
             "slot": "201",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)1688_storage))",
             "contract": "NFTMarketplace",
-            "src": "contracts\\NFTMarketplace.sol:54"
+            "src": "contracts\\NFTMarketplace.sol:51"
           }
         ],
         "types": {

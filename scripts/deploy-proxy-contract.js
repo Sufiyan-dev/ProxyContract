@@ -7,4 +7,5 @@ async function main() {
     await marketplaceContract.deployed();
     console.log("NFTmarketplace contract deployed to:", marketplaceContract.address);
 }
+
 main();
