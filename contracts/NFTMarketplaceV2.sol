@@ -27,7 +27,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract NFTMarketplace is ERC721Holder, ERC1155Holder, Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract NFTMarketplaceV2 is ERC721Holder, ERC1155Holder, Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     /** 
      * `seller` is the seller of the nft
