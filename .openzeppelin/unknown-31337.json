@@ -8,14 +8,14 @@
     },
     {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x1f88ba67011b090985d60251eedbc560cd52d2fe1dc7c57f0796bd315f32391c",
+      "txHash": "0x1b09433ce32ebf02300553337e5f4dd2b6b7671117e8a4cf0e914b63076ae186",
       "kind": "uups"
     }
   ],
   "impls": {
-    "019e37e31abf79802665797a7c539f338154cb4d6211d6b00043d06d6f0f0c57": {
+    "17f8f2aecc48c353286990cdfbc013f40ae26b2b9fc756926f3457ae810bf37f": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xd28ef572557a7add7b82dd4b635d7d00a99a03eff0d1ce256f3287636c43af8f",
+      "txHash": "0x514442ae2c968fc045fd50ca582ff8ff6898594a79d533b698f4228e4026feeb",
       "layout": {
         "solcVersion": "0.8.9",
         "storage": [
@@ -77,12 +77,20 @@
             "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\UUPSUpgradeable.sol:107"
           },
           {
-            "label": "listings",
+            "label": "listingCount",
             "offset": 0,
             "slot": "201",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)1688_storage))",
+            "type": "t_uint256",
             "contract": "NFTMarketplace",
-            "src": "contracts\\NFTMarketplace.sol:54"
+            "src": "contracts\\NFTMarketplace.sol:58"
+          },
+          {
+            "label": "listings",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)5427_storage))",
+            "contract": "NFTMarketplace",
+            "src": "contracts\\NFTMarketplace.sol:61"
           }
         ],
         "types": {
@@ -102,15 +110,15 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)1688_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)5427_storage))": {
             "label": "mapping(address => mapping(uint256 => struct NFTMarketplace.Listing))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Listing)1688_storage)": {
+          "t_mapping(t_uint256,t_struct(Listing)5427_storage)": {
             "label": "mapping(uint256 => struct NFTMarketplace.Listing)",
             "numberOfBytes": "32"
           },
-          "t_struct(Listing)1688_storage": {
+          "t_struct(Listing)5427_storage": {
             "label": "struct NFTMarketplace.Listing",
             "members": [
               {

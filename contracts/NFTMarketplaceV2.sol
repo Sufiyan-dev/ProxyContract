@@ -5,9 +5,16 @@ pragma solidity ^0.8.0;
  * - Others can buy listed NFTs (By paying in terms of ETHERS/MATIC)
  * - User can update the listed NFT's properties (Ex: price)
  * - User can de-list their NFTs from marketplace
- * - V2
- *  - Added listing count
+ * - V2 upgardes info :
+ *  Global
+ *  - Added listing count --done
+ *  CreatListing fn
  *  - Added check that user has approve the contract when listing erc1155 token
+ *  puasenUnpaseListing fn -- done
+ *  - Added validiton of checking the listing exist in pause n unpause fucntion --done
+ *  - added status in event of pausing and unpausing --done
+ *  BuyListingNft
+ *  - Added transfer eth to seller code --done
  */
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -18,7 +25,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract NFTMarketplace is
+contract NFTMarketplaceV2 is
     ERC721Holder,
     ERC1155Holder,
     Initializable,
@@ -47,7 +54,7 @@ contract NFTMarketplace is
     mapping(address => mapping(uint256 => Listing)) public listings;
 
     // listing counting
-    uint256 listingCount;
+    uint256 public listingCount;
 
     event ListingCreated(
         address indexed nftContract,
@@ -76,7 +83,8 @@ contract NFTMarketplace is
         address indexed nftContract,
         uint256 indexed tokenId,
         uint8 tokenType,
-        address indexed owner
+        address indexed owner,
+        bool status
     );
     event ListingUpdated(
         address indexed nftContract,
@@ -223,6 +231,7 @@ contract NFTMarketplace is
         bool newStatus
     ) external returns (bool) {
         Listing storage listing = listings[_nftContract][_tokenId];
+        require(listing.seller != address(0),"Invalid input, no such listing");
         require(listing.sold == false, "Nft already sold");
         require(
             listing.seller == msg.sender,
@@ -235,7 +244,8 @@ contract NFTMarketplace is
             _nftContract,
             _tokenId,
             listing.tokenType,
-            msg.sender
+            msg.sender,
+            newStatus
         );
 
         return true;
@@ -270,6 +280,10 @@ contract NFTMarketplace is
 
         listing.sold = true;
         listing.status = false;
+
+        (bool sent,) = payable(listing.seller).call{value: msg.value}("");
+
+        require(sent,"eth transfer failed");
 
         emit ListingSold(
             _nftContract,
