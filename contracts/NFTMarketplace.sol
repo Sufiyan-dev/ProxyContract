@@ -102,43 +102,43 @@ contract NFTMarketplace is
 
     /**
      * @dev this is function is use to list nft
-     * @param _nftContract address of contract
+     * @param nftContract address of contract
      */
     function createListing(
-        address _nftContract,
-        uint256 _tokenId,
-        uint256 _price,
-        uint8 _tokenType,
-        uint256 _tokenAmount
+        address nftContract,
+        uint256 tokenId,
+        uint256 price,
+        uint8 tokenType,
+        uint256 tokenAmount
     ) external reEntrancyGuard returns(bool){
-        require(_price > 0, "Price must be greater than zero");
-        require(_tokenType == 1 || _tokenType == 2, "Invalid token type");
-        require(_tokenAmount > 0, "Invalid token amount");
+        require(price > 0, "Price must be greater than zero");
+        require(tokenType == 1 || tokenType == 2, "Invalid token type");
+        require(tokenAmount > 0, "Invalid token amount");
         require(
-            listings[_nftContract][_tokenId].status == false,
+            !listings[nftContract][tokenId].status,
             "NFT is already listed"
         );
 
-        if (_tokenType == 1) {
+        if (tokenType == 1) {
             require(
-                _tokenAmount == 1,
+                tokenAmount == 1,
                 "token amount 1 expect for erc721 token"
             );
-            IERC721 nft = IERC721(_nftContract);
+            IERC721 nft = IERC721(nftContract);
             require(
-                nft.ownerOf(_tokenId) == msg.sender,
+                nft.ownerOf(tokenId) == msg.sender,
                 "Only the owner can list the NFT"
             );
             require(
-                nft.getApproved(_tokenId) == address(this),
+                nft.getApproved(tokenId) == address(this),
                 "Need to approve this contract"
             );
 
-            nft.safeTransferFrom(msg.sender, address(this), _tokenId);
+            nft.safeTransferFrom(msg.sender, address(this), tokenId);
         } else {
-            IERC1155 nft = IERC1155(_nftContract);
+            IERC1155 nft = IERC1155(nftContract);
             require(
-                nft.balanceOf(msg.sender, _tokenId) >= _tokenAmount,
+                nft.balanceOf(msg.sender, tokenId) >= tokenAmount,
                 "Sender does have sufficient amount of token"
             );
 
@@ -151,16 +151,16 @@ contract NFTMarketplace is
             nft.safeTransferFrom(
                 msg.sender,
                 address(this),
-                _tokenId,
-                _tokenAmount,
+                tokenId,
+                tokenAmount,
                 ""
             );
         }
-        listings[_nftContract][_tokenId] = Listing(
+        listings[nftContract][tokenId] = Listing(
             msg.sender,
-            _price,
-            _tokenType,
-            _tokenAmount,
+            price,
+            tokenType,
+            tokenAmount,
             true,
             false
         );
@@ -168,12 +168,12 @@ contract NFTMarketplace is
         listingCount++;
 
         emit ListingCreated(
-            _nftContract,
-            _tokenId,
-            _price,
+            nftContract,
+            tokenId,
+            price,
             msg.sender,
-            _tokenType,
-            _tokenAmount
+            tokenType,
+            tokenAmount
         );
 
         return true;
@@ -182,39 +182,39 @@ contract NFTMarketplace is
     /**
      *
      */
-    function removeListing(address _nftContract, uint256 _tokenId) external reEntrancyGuard returns(bool){
-        Listing storage listing = listings[_nftContract][_tokenId];
+    function removeListing(address nftContract, uint256 tokenId) external reEntrancyGuard returns(bool){
+        Listing storage listing = listings[nftContract][tokenId];
 
         require(listing.seller != address(0), "No such listing");
         require(
             listing.seller == msg.sender,
             "Only the seller can remove the listing"
         );
-        require(listing.sold == false, "Nft already sold");
+        require(!listing.sold, "Nft already sold");
 
         if (listing.tokenType == 1) {
-            IERC721(_nftContract).safeTransferFrom(
+            IERC721(nftContract).safeTransferFrom(
                 address(this),
                 msg.sender,
-                _tokenId
+                tokenId
             );
         } else {
-            IERC1155(_nftContract).safeTransferFrom(
+            IERC1155(nftContract).safeTransferFrom(
                 address(this),
                 msg.sender,
-                _tokenId,
+                tokenId,
                 listing.tokenAmount,
                 ""
             );
         }
 
-        delete listings[_nftContract][_tokenId];
+        delete listings[nftContract][tokenId];
 
         listingCount--;
 
         emit ListingRemoved(
-            _nftContract,
-            _tokenId,
+            nftContract,
+            tokenId,
             listing.tokenType,
             listing.tokenAmount
         );
@@ -224,13 +224,13 @@ contract NFTMarketplace is
 
     // need to add pausable feature
     function pauseUnpauseListing(
-        address _nftContract,
-        uint256 _tokenId,
+        address nftContract,
+        uint256 tokenId,
         bool newStatus
     ) external returns (bool) {
-        Listing storage listing = listings[_nftContract][_tokenId];
+        Listing storage listing = listings[nftContract][tokenId];
         require(listing.seller != address(0),"Invalid input, no such listing");
-        require(listing.sold == false, "Nft already sold");
+        require(!listing.sold, "Nft already sold");
         require(
             listing.seller == msg.sender,
             "Only owner can pause the listing"
@@ -239,8 +239,8 @@ contract NFTMarketplace is
         listing.status = newStatus; // updating status
 
         emit ListingPausedUnpaused(
-            _nftContract,
-            _tokenId,
+            nftContract,
+            tokenId,
             listing.tokenType,
             msg.sender,
             newStatus
@@ -251,27 +251,27 @@ contract NFTMarketplace is
 
     // need to add buy feature
     function buyListedNft(
-        address _nftContract,
-        uint256 _tokenId
+        address nftContract,
+        uint256 tokenId
     ) external reEntrancyGuard payable returns (bool) {
-        Listing storage listing = listings[_nftContract][_tokenId];
+        Listing storage listing = listings[nftContract][tokenId];
 
         require(listing.seller != address(0),"No such listing");
-        require(listing.status == true, "listing is paused");
-        require(listing.sold == false, "Nft already sold");
+        require(listing.status, "listing is paused");
+        require(!listing.sold, "Nft already sold");
         require(listing.price <= msg.value, "Insufficient amount sended");
 
         if (listing.tokenType == 1) {
-            IERC721(_nftContract).safeTransferFrom(
+            IERC721(nftContract).safeTransferFrom(
                 address(this),
                 msg.sender,
-                _tokenId
+                tokenId
             );
         } else {
-            IERC1155(_nftContract).safeTransferFrom(
+            IERC1155(nftContract).safeTransferFrom(
                 address(this),
                 msg.sender,
-                _tokenId,
+                tokenId,
                 listing.tokenAmount,
                 ""
             );
@@ -287,8 +287,8 @@ contract NFTMarketplace is
         listingCount--;
 
         emit ListingSold(
-            _nftContract,
-            _tokenId,
+            nftContract,
+            tokenId,
             listing.price,
             msg.sender,
             listing.seller,
@@ -300,22 +300,22 @@ contract NFTMarketplace is
     }
 
     function updateListing(
-        address _nftContract,
-        uint256 _tokenId,
-        uint256 _newAmount
+        address nftContract,
+        uint256 tokenId,
+        uint256 newAmount
     ) external returns (bool) {
-        Listing storage listing = listings[_nftContract][_tokenId];
+        Listing storage listing = listings[nftContract][tokenId];
 
-        require(listing.sold == false, "Nft already sold");
+        require(!listing.sold, "Nft already sold");
         require(
             listing.seller == msg.sender,
             "Only owner can update listing details"
         );
-        require(_newAmount > 0, "Amount should be greater than zero");
+        require(newAmount > 0, "Amount should be greater than zero");
 
-        listing.price = _newAmount;
+        listing.price = newAmount;
 
-        emit ListingUpdated(_nftContract, _tokenId, _newAmount);
+        emit ListingUpdated(nftContract, tokenId, newAmount);
 
         return true;
     }
