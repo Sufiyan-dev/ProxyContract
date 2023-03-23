@@ -1,21 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-/** Need to implement
- * - Users can list their NFTs for sale (Should accept both ERC721 and ERC1155 tokens)
- * - Others can buy listed NFTs (By paying in terms of ETHERS/MATIC)
- * - User can update the listed NFT's properties (Ex: price)
- * - User can de-list their NFTs from marketplace
- */
-
-// Function to list users nft should accpet erc721 and erc1155
-
-// Function update listed nft data by user only can update price
-
-// Function de-list  listed nft
-
-// Function to get list of all listed nfts for sales with details
-
-//
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -53,8 +37,18 @@ contract NFTMarketplace is
     // listing counting
     uint256 public listingCount;
 
+    // 
+    bool functionInUsed;
+
     // mapping from contractaddress to tokenId to tokenlistingDetails
     mapping(address => mapping(uint256 => Listing)) public listings;
+
+    modifier reEntrancyGuard() {
+        require(!functionInUsed,"reentracy guard : function already in used");
+        functionInUsed = true;
+        _;
+        functionInUsed = false;
+    }
 
     event ListingCreated(
         address indexed nftContract,
@@ -116,7 +110,7 @@ contract NFTMarketplace is
         uint256 _price,
         uint8 _tokenType,
         uint256 _tokenAmount
-    ) external {
+    ) external reEntrancyGuard returns(bool){
         require(_price > 0, "Price must be greater than zero");
         require(_tokenType == 1 || _tokenType == 2, "Invalid token type");
         require(_tokenAmount > 0, "Invalid token amount");
@@ -181,12 +175,14 @@ contract NFTMarketplace is
             _tokenType,
             _tokenAmount
         );
+
+        return true;
     }
 
     /**
      *
      */
-    function removeListing(address _nftContract, uint256 _tokenId) external {
+    function removeListing(address _nftContract, uint256 _tokenId) external reEntrancyGuard returns(bool){
         Listing storage listing = listings[_nftContract][_tokenId];
 
         require(listing.seller != address(0), "No such listing");
@@ -222,6 +218,8 @@ contract NFTMarketplace is
             listing.tokenType,
             listing.tokenAmount
         );
+
+        return true;
     }
 
     // need to add pausable feature
@@ -255,7 +253,7 @@ contract NFTMarketplace is
     function buyListedNft(
         address _nftContract,
         uint256 _tokenId
-    ) external payable returns (bool) {
+    ) external reEntrancyGuard payable returns (bool) {
         Listing storage listing = listings[_nftContract][_tokenId];
 
         require(listing.seller != address(0),"No such listing");

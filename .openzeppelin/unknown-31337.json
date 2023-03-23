@@ -13,9 +13,9 @@
     }
   ],
   "impls": {
-    "17f8f2aecc48c353286990cdfbc013f40ae26b2b9fc756926f3457ae810bf37f": {
+    "7638398caaa7477a97417c9f4186962689f72c4cdb6962d1089b318db971cb14": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x514442ae2c968fc045fd50ca582ff8ff6898594a79d533b698f4228e4026feeb",
+      "txHash": "0x313cd32decaba512de05cbb572bdb7e48c2964fa9732f90251f5931b141f74bc",
       "layout": {
         "solcVersion": "0.8.9",
         "storage": [
@@ -82,15 +82,23 @@
             "slot": "201",
             "type": "t_uint256",
             "contract": "NFTMarketplace",
-            "src": "contracts\\NFTMarketplace.sol:58"
+            "src": "contracts\\NFTMarketplace.sol:42"
+          },
+          {
+            "label": "functionInUsed",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_bool",
+            "contract": "NFTMarketplace",
+            "src": "contracts\\NFTMarketplace.sol:45"
           },
           {
             "label": "listings",
             "offset": 0,
-            "slot": "202",
+            "slot": "203",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Listing)5427_storage))",
             "contract": "NFTMarketplace",
-            "src": "contracts\\NFTMarketplace.sol:61"
+            "src": "contracts\\NFTMarketplace.sol:48"
           }
         ],
         "types": {
