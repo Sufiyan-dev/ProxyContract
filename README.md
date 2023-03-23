@@ -1,4 +1,4 @@
-# Sample Hardhat Project
+# NFT Marketplace Project
 This project is an NFT marketplace that allows users to buy and sell ERC721 and ERC1155 NFTs. The marketplace is built using the UUPS proxy pattern, which allows for easy upgrades to the smart contract. The smart contract is tested using unit tests to ensure that it is working correctly. The deploy script is used to deploy the smart contract to the blockchain, and the upgrade script is used to upgrade the smart contract when necessary. The smart contract is verified on the blockchain to ensure that it is secure and working correctly. The marketplace only accepts ETH as a payment method.
 
 ## Users
@@ -69,7 +69,7 @@ This project is an NFT marketplace that allows users to buy and sell ERC721 and 
         ```
         pip3 install slither-analyzer
         ```
-    - Need to add path variable defining it
+    - Need to add path variable defining it    
 
 ### Contract Addresses
 - Polygon Mumbai
@@ -80,3 +80,11 @@ This project is an NFT marketplace that allows users to buy and sell ERC721 and 
 
 ### Coverage 
 ![Test Coverage](readmeImages/coverage2.jpeg "test Coverage")
+
+### Some other info
+1. For skipping the contract for coverage testing
+    - We can all the skip contract name in `.solcover.js` file.
+2. `.openzepplin` file consist of all the contract deployed from this projects on diffent chains
+
+## Author
+Sufiyan
