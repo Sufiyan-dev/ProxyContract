@@ -1,6 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('@openzeppelin/hardhat-upgrades');
 require("@nomiclabs/hardhat-etherscan");
+require('solidity-coverage');
 require('dotenv').config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
