@@ -1,21 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-/** Need to implement
- * - Users can list their NFTs for sale (Should accept both ERC721 and ERC1155 tokens)
- * - Others can buy listed NFTs (By paying in terms of ETHERS/MATIC)
- * - User can update the listed NFT's properties (Ex: price)
- * - User can de-list their NFTs from marketplace
- * - V2 upgardes info :
- *  Global
- *  - Added listing count --done
- *  CreatListing fn
- *  - Added check that user has approve the contract when listing erc1155 token
- *  puasenUnpaseListing fn -- done
- *  - Added validiton of checking the listing exist in pause n unpause fucntion --done
- *  - added status in event of pausing and unpausing --done
- *  BuyListingNft
- *  - Added transfer eth to seller code --done
- */
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -50,11 +34,23 @@ contract NFTMarketplaceV2 is
         bool sold;
     }
 
+    // listing counting
+    uint256 public listingCount;
+
+    // reentracy
+    bool functionInUsed;
+
     // mapping from contractaddress to tokenId to tokenlistingDetails
     mapping(address => mapping(uint256 => Listing)) public listings;
 
-    // listing counting
-    uint256 public listingCount;
+    string private _version;
+
+    modifier reEntrancyGuard() {
+        require(!functionInUsed,"reentracy guard : function already in used");
+        functionInUsed = true;
+        _;
+        functionInUsed = false;
+    }
 
     event ListingCreated(
         address indexed nftContract,
@@ -106,6 +102,10 @@ contract NFTMarketplaceV2 is
         address newImplementation
     ) internal override onlyOwner {}
 
+    function version() external pure returns(string memory){
+        return "V2";
+    }
+
     /**
      * @dev this is function is use to list nft
      * @param _nftContract address of contract
@@ -116,7 +116,7 @@ contract NFTMarketplaceV2 is
         uint256 _price,
         uint8 _tokenType,
         uint256 _tokenAmount
-    ) external {
+    ) external reEntrancyGuard returns(bool){
         require(_price > 0, "Price must be greater than zero");
         require(_tokenType == 1 || _tokenType == 2, "Invalid token type");
         require(_tokenAmount > 0, "Invalid token amount");
@@ -181,20 +181,22 @@ contract NFTMarketplaceV2 is
             _tokenType,
             _tokenAmount
         );
+
+        return true;
     }
 
     /**
      *
      */
-    function removeListing(address _nftContract, uint256 _tokenId) external {
+    function removeListing(address _nftContract, uint256 _tokenId) external reEntrancyGuard returns(bool){
         Listing storage listing = listings[_nftContract][_tokenId];
 
-        require(listing.sold == false, "Nft already sold");
-        require(listing.status == true, "NFT is not listed");
+        require(listing.seller != address(0), "No such listing");
         require(
             listing.seller == msg.sender,
             "Only the seller can remove the listing"
         );
+        require(listing.sold == false, "Nft already sold");
 
         if (listing.tokenType == 1) {
             IERC721(_nftContract).safeTransferFrom(
@@ -222,6 +224,8 @@ contract NFTMarketplaceV2 is
             listing.tokenType,
             listing.tokenAmount
         );
+
+        return true;
     }
 
     // need to add pausable feature
@@ -255,11 +259,12 @@ contract NFTMarketplaceV2 is
     function buyListedNft(
         address _nftContract,
         uint256 _tokenId
-    ) external payable returns (bool) {
+    ) external reEntrancyGuard payable returns (bool) {
         Listing storage listing = listings[_nftContract][_tokenId];
 
+        require(listing.seller != address(0),"No such listing");
+        require(listing.status == true, "listing is paused");
         require(listing.sold == false, "Nft already sold");
-        require(listing.status == true, "Nft not listed or paused");
         require(listing.price <= msg.value, "Insufficient amount sended");
 
         if (listing.tokenType == 1) {
@@ -285,6 +290,8 @@ contract NFTMarketplaceV2 is
 
         require(sent,"eth transfer failed");
 
+        listingCount--;
+
         emit ListingSold(
             _nftContract,
             _tokenId,
@@ -294,8 +301,6 @@ contract NFTMarketplaceV2 is
             listing.tokenType,
             listing.tokenAmount
         );
-
-        listingCount--;
 
         return true;
     }
